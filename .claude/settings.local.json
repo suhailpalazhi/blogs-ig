@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd /d \"D:\\\\Afnan\")",
+      "Bash(python manage.py check)",
+      "Bash(env\\\\Scripts\\\\python.exe manage.py check)",
+      "Bash(./env/Scripts/python.exe manage.py migrate)",
+      "Bash(./env/Scripts/python.exe manage.py seed_data)",
+      "Bash(curl -s http://127.0.0.1:8000/)",
+      "Bash(curl -s \"http://127.0.0.1:8000/api/v1/posts/\")",
+      "Bash(curl -s \"http://127.0.0.1:8000/api/v1/posts/12/\")",
+      "Bash(curl -s \"http://127.0.0.1:8000/api/v1/interactions/comments/?post=12\")",
+      "Bash(./env/Scripts/python.exe manage.py runserver --noreload 0.0.0.0:8000)",
+      "Bash(curl *)"
+    ]
+  }
+}
