@@ -2,6 +2,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Count
 from .models import Post
 from .serializers import PostSerializer
@@ -15,6 +16,8 @@ class PostViewSet(viewsets.ModelViewSet):
     ).order_by('-created_at')
     serializer_class = PostSerializer
     permission_classes = [IsAuthorOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['author__username']
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)

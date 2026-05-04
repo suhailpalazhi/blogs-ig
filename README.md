@@ -72,7 +72,6 @@ D:\Afnan/
 ├── users/          # User authentication & profiles
 ├── posts/          # Post CRUD operations
 ├── interactions/   # Comments & likes
-├── frontend/       # Next.js React frontend
 └── manage.py       # Django management script
 ```
 
