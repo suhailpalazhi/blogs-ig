@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #ec4899;
+  --color-secondary: #f9a8d4;
+  --color-cta: #8b5cf6;
+  --color-background: #fdf2f8;
+  --color-text: #831843;
+}
+
+@custom-variant dark (&:is(.dark *));
+
+@layer base {
+  body {
+    @apply bg-background text-text selection:bg-primary/20 selection:text-primary overflow-x-hidden;
+    /* Soft mesh gradient background */
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(330, 80%, 95%, 1) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(280, 80%, 95%, 1) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(330, 80%, 95%, 1) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsla(280, 80%, 95%, 1) 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+}
+
+/* Fluid Utilities */
+@layer utilities {
+  .glass-panel {
+    @apply bg-white/40 backdrop-blur-xl border border-white/60 shadow-[0_8px_32px_rgba(236,72,153,0.05)];
+  }
+  
+  .glass-card {
+    @apply bg-white/60 backdrop-blur-md border border-white/80 shadow-[0_4px_24px_rgba(139,92,246,0.05)] transition-all duration-500 hover:shadow-[0_12px_40px_rgba(236,72,153,0.15)] hover:-translate-y-1;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary to-cta bg-clip-text text-transparent;
+  }
+}
+
+/* Hide scrollbar for clean aesthetics but keep functionality */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-secondary/50 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-primary/50;
+}
