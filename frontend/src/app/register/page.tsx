@@ -49,7 +49,7 @@ export default function Register() {
     }
 
     try {
-      await authApi.post('/users/register/', data, {
+      await authApi.post('/v1/users/register/', data, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       router.push('/login');
