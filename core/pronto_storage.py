@@ -8,60 +8,82 @@ import uuid
 class ProntoStorage(Storage):
     """
     Custom Django Storage backend for Get Pronto (getpronto.io).
-    This assumes a standard REST API upload.
+    Implements the 3-step upload process (presign -> PUT -> confirm).
     """
     def __init__(self):
         self.api_key = getattr(settings, 'PRONTO_API_KEY', None)
-        # Default endpoint assumed. Update this if Pronto documentation specifies a different one.
-        self.upload_url = getattr(settings, 'PRONTO_UPLOAD_URL', 'https://api.getpronto.io/v1/files')
+        self.base_url = getattr(settings, 'PRONTO_BASE_URL', 'https://api.getpronto.io/v1')
 
     def _save(self, name, content):
         if not self.api_key:
             raise ValueError("PRONTO_API_KEY is not set in settings.")
 
         headers = {
-            'Authorization': f'Bearer {self.api_key}'
+            'Authorization': f'ApiKey {self.api_key}',
+            'Content-Type': 'application/json'
         }
         
-        # Read the file content
         file_data = content.read()
-        
-        # Construct a unique filename to prevent collisions
-        ext = os.path.splitext(name)[1]
+        ext = os.path.splitext(name)[1].lower()
         unique_name = f"{uuid.uuid4()}{ext}"
         
-        files = {
-            'file': (unique_name, file_data)
-        }
+        # Determine basic mime type for presign
+        mime_type = 'application/octet-stream'
+        if ext in ['.jpg', '.jpeg']: mime_type = 'image/jpeg'
+        elif ext == '.png': mime_type = 'image/png'
+        elif ext == '.gif': mime_type = 'image/gif'
+        elif ext == '.webp': mime_type = 'image/webp'
+        elif ext == '.svg': mime_type = 'image/svg+xml'
 
         try:
-            response = requests.post(self.upload_url, headers=headers, files=files)
-            response.raise_for_status()  # Raise an exception for bad status codes
+            # 1. Presign Upload
+            presign_payload = {
+                'filename': unique_name,
+                'mimetype': mime_type,
+                'size': len(file_data)
+            }
+            presign_res = requests.post(
+                f"{self.base_url}/upload/presign", 
+                headers=headers, 
+                json=presign_payload
+            )
+            presign_res.raise_for_status()
+            presign_data = presign_res.json()
             
-            data = response.json()
+            upload_url = presign_data['uploadUrl']
+            pending_id = presign_data['pendingUploadId']
+
+            # 2. Upload File (PUT)
+            upload_res = requests.put(
+                upload_url,
+                headers={'Content-Type': mime_type},
+                data=file_data
+            )
+            upload_res.raise_for_status()
+
+            # 3. Confirm Upload
+            confirm_payload = {'pendingUploadId': pending_id}
+            confirm_res = requests.post(
+                f"{self.base_url}/upload/confirm",
+                headers=headers,
+                json=confirm_payload
+            )
+            confirm_res.raise_for_status()
             
-            # NOTE: We assume the response JSON has a 'url' field.
-            # If Pronto uses a different key (e.g., 'asset_url' or 'data.url'), update this!
-            if 'url' in data:
-                return data['url']
-            elif 'data' in data and 'url' in data['data']:
-                return data['data']['url']
+            confirm_data = confirm_res.json()
+            
+            if 'file' in confirm_data and 'secureUrl' in confirm_data['file']:
+                return confirm_data['file']['secureUrl']
             else:
-                # Fallback: if we can't find the URL in the response, return the raw text
-                # so the user can debug it
-                print("Pronto Response:", data)
-                raise KeyError(f"Could not find 'url' in Pronto response: {data}")
+                print("Pronto Confirm Response:", confirm_data)
+                raise KeyError(f"Could not find 'secureUrl' in Pronto response: {confirm_data}")
                 
         except Exception as e:
             print(f"Error uploading to Pronto: {e}")
             raise e
 
     def exists(self, name):
-        # We return False so Django always generates a new upload instead of checking 
-        # if the file exists on Pronto (which saves an API call).
         return False
 
     def url(self, name):
-        # Since _save returns the absolute URL from Pronto, Django saves the absolute URL in the DB.
-        # Therefore, we just return the name (which is the full URL).
         return name
