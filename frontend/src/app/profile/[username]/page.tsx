@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import api from '@/lib/api';
 import PostCard from '@/components/PostCard';
 import { useAuth } from '@/context/AuthContext';
-import { User as UserIcon, MapPin, Link as LinkIcon, CalendarDays } from 'lucide-react';
+import { User as UserIcon, MapPin, Link as LinkIcon, CalendarDays, Camera } from 'lucide-react';
 
 interface UserProfile {
   id: number;
@@ -31,12 +31,37 @@ interface Post {
 export default function ProfilePage() {
   const params = useParams();
   const username = params?.username as string;
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, fetchUser } = useAuth();
   
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !e.target.files[0]) return;
+    const file = e.target.files[0];
+    setIsUploadingAvatar(true);
+    
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    try {
+      const res = await api.patch('/users/me/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      setProfile(res.data);
+      fetchUser();
+    } catch (err) {
+      console.error('Failed to update avatar', err);
+      alert('Failed to upload avatar. Please try again.');
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
 
   useEffect(() => {
     if (!username) return;
@@ -90,14 +115,32 @@ export default function ProfilePage() {
         <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[150%] bg-gradient-to-l from-primary/10 to-cta/10 blur-[100px] -z-10 rounded-full mix-blend-multiply"></div>
 
         <div className="flex flex-col md:flex-row items-center md:items-start space-y-8 md:space-y-0 md:space-x-12 relative z-10">
-          <div className="flex-shrink-0 w-40 h-40 md:w-56 md:h-56 rounded-full bg-gradient-to-tr from-primary to-cta p-1.5 shadow-[0_12px_40px_rgba(236,72,153,0.3)]">
-            <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden border-4 border-white">
+          <div className="flex-shrink-0 w-40 h-40 md:w-56 md:h-56 rounded-full bg-gradient-to-tr from-primary to-cta p-1.5 shadow-[0_12px_40px_rgba(236,72,153,0.3)] relative group">
+            <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden border-4 border-white relative">
                {profile.avatar ? (
                   <img src={profile.avatar.startsWith('http') ? profile.avatar : `http://127.0.0.1:8000${profile.avatar}`} alt={profile.username} className="w-full h-full object-cover" />
                 ) : (
                   <UserIcon className="w-20 h-20 text-primary/30" />
                 )}
+               {isUploadingAvatar && (
+                 <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center">
+                   <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                 </div>
+               )}
             </div>
+            
+            {isOwnProfile && (
+              <label className="absolute bottom-2 right-2 md:bottom-4 md:right-4 bg-white p-3 md:p-4 rounded-full shadow-lg text-primary cursor-pointer hover:scale-110 hover:text-cta transition-all z-20 border border-primary/10">
+                <Camera className="w-5 h-5 md:w-6 md:h-6" />
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  className="hidden" 
+                  onChange={handleAvatarChange}
+                  disabled={isUploadingAvatar}
+                />
+              </label>
+            )}
           </div>
           
           <div className="flex-1 text-center md:text-left pt-4">
