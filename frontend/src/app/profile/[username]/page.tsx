@@ -93,7 +93,7 @@ export default function ProfilePage() {
           <div className="flex-shrink-0 w-40 h-40 md:w-56 md:h-56 rounded-full bg-gradient-to-tr from-primary to-cta p-1.5 shadow-[0_12px_40px_rgba(236,72,153,0.3)]">
             <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden border-4 border-white">
                {profile.avatar ? (
-                  <img src={`http://127.0.0.1:8000${profile.avatar}`} alt={profile.username} className="w-full h-full object-cover" />
+                  <img src={profile.avatar.startsWith('http') ? profile.avatar : `http://127.0.0.1:8000${profile.avatar}`} alt={profile.username} className="w-full h-full object-cover" />
                 ) : (
                   <UserIcon className="w-20 h-20 text-primary/30" />
                 )}

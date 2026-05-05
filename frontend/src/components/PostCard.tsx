@@ -34,7 +34,7 @@ export default function PostCard({ post }: PostCardProps) {
         <div className="relative w-full overflow-hidden">
           {post.image ? (
             <img 
-              src={`http://127.0.0.1:8000${post.image}`} 
+              src={post.image.startsWith('http') ? post.image : `http://127.0.0.1:8000${post.image}`} 
               alt={post.title} 
               className="w-full h-auto object-cover transition-transform duration-700 ease-out group-hover:scale-105"
             />

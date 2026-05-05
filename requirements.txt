@@ -7,3 +7,7 @@ Pillow
 djangorestframework-simplejwt
 drf-spectacular
 django-filter
+dj-database-url
+psycopg2
+cloudinary
+django-cloudinary-storage

@@ -168,7 +168,7 @@ export default function PostDetail() {
         <div className="relative w-full min-h-[400px] max-h-[700px] bg-white/50 flex justify-center items-center">
           {post.image ? (
             <img 
-              src={`http://127.0.0.1:8000${post.image}`} 
+              src={post.image.startsWith('http') ? post.image : `http://127.0.0.1:8000${post.image}`} 
               alt={post.title} 
               className="w-full h-full object-cover max-h-[700px]"
             />
