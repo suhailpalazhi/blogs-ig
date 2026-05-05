@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
-import { ImagePlus, Sparkles } from 'lucide-react';
+import { ImagePlus, Sparkles, X } from 'lucide-react';
 import Link from 'next/link';
 
 export default function CreatePost() {
@@ -99,19 +99,32 @@ export default function CreatePost() {
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Image Upload Area */}
-          <div className="relative group cursor-pointer">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-            />
-            <div className={`w-full h-72 md:h-96 rounded-[2rem] border-2 border-dashed ${imagePreview ? 'border-transparent' : 'border-primary/20 group-hover:border-primary/50'} flex flex-col items-center justify-center bg-white/40 transition-all duration-300 overflow-hidden relative shadow-sm group-hover:shadow-md group-hover:bg-white/60`}>
+          <div className="relative group">
+            {!imagePreview && (
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              />
+            )}
+            <div className={`w-full h-72 md:h-96 rounded-[2rem] border-2 border-dashed ${imagePreview ? 'border-transparent' : 'border-primary/20 hover:border-primary/50'} flex flex-col items-center justify-center bg-white/40 transition-all duration-300 overflow-hidden relative shadow-sm group-hover:shadow-md group-hover:bg-white/60`}>
               {imagePreview ? (
                 <>
                   <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-white/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
-                    <span className="text-primary font-bold bg-white px-6 py-3 rounded-full shadow-lg">Change Artwork</span>
+                  <div className="absolute top-4 right-4 z-20">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setImage(null);
+                        setImagePreview(null);
+                      }}
+                      className="p-3 bg-red-500/90 hover:bg-red-600 text-white rounded-full shadow-lg transition-all transform hover:scale-110 flex items-center justify-center backdrop-blur-sm"
+                      title="Remove image"
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
                   </div>
                 </>
               ) : (
@@ -166,11 +179,18 @@ export default function CreatePost() {
             />
           </div>
 
-          <div className="pt-6">
+          <div className="pt-6 flex flex-col sm:flex-row gap-4">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="w-full sm:w-1/3 py-5 px-6 bg-white/60 border border-white text-text/80 font-bold rounded-2xl shadow-sm hover:bg-white hover:text-text hover:shadow-md transition-all focus:outline-none flex justify-center items-center text-xl hover:scale-[1.01]"
+            >
+              Cancel
+            </button>
             <button
               type="submit"
               disabled={isLoading || !formData.title || !formData.content || !formData.category}
-              className="w-full py-5 px-6 bg-gradient-to-r from-primary to-cta text-white font-bold rounded-2xl shadow-[0_8px_20px_rgba(236,72,153,0.3)] hover:shadow-[0_12px_30px_rgba(236,72,153,0.4)] transition-all focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center space-x-3 text-xl hover:scale-[1.01]"
+              className="w-full sm:w-2/3 py-5 px-6 bg-gradient-to-r from-primary to-cta text-white font-bold rounded-2xl shadow-[0_8px_20px_rgba(236,72,153,0.3)] hover:shadow-[0_12px_30px_rgba(236,72,153,0.4)] transition-all focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center space-x-3 text-xl hover:scale-[1.01]"
             >
               {isLoading ? (
                 <div className="w-7 h-7 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
