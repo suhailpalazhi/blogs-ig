@@ -138,7 +138,14 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Media files setup (falls back to local if Pronto API key is not provided)
 PRONTO_API_KEY = env('PRONTO_API_KEY', default=None)
 if PRONTO_API_KEY:
-    DEFAULT_FILE_STORAGE = 'core.pronto_storage.ProntoStorage'
+    STORAGES = {
+        "default": {
+            "BACKEND": "core.pronto_storage.ProntoStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
 else:
     MEDIA_URL = '/media/'
     MEDIA_ROOT = BASE_DIR / 'media'

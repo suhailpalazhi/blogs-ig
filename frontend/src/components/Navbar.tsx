@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { LogOut, User, Menu, Plus } from 'lucide-react';
+import { LogOut, User, Menu, Plus, Settings } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Navbar() {
@@ -32,6 +32,9 @@ export default function Navbar() {
               <div className="flex items-center space-x-4 border-l border-primary/10 pl-6">
                 <Link href={`/profile/${user.username}`} className="text-sm text-text/70 hover:text-primary transition-colors">
                   Welcome, <span className="font-semibold text-text">{user.first_name || user.username}</span>
+                </Link>
+                <Link href="/settings" className="flex items-center space-x-1 text-sm font-medium text-text/60 hover:text-primary transition-colors" aria-label="Settings">
+                  <Settings className="w-4 h-4" />
                 </Link>
                 <button
                   onClick={logout}
@@ -81,6 +84,9 @@ export default function Navbar() {
                 </Link>
                 <Link href={`/profile/${user.username}`} className="block text-base font-medium text-text/80 hover:text-primary transition-colors px-2 py-1" onClick={() => setMenuOpen(false)}>
                   My Profile
+                </Link>
+                <Link href="/settings" className="block text-base font-medium text-text/80 hover:text-primary transition-colors px-2 py-1" onClick={() => setMenuOpen(false)}>
+                  Settings
                 </Link>
                 <div className="text-sm text-text/60 py-2 border-t border-primary/10 px-2 mt-2">
                   Signed in as {user.username}
