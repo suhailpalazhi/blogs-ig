@@ -9,7 +9,8 @@ import Link from 'next/link';
 
 interface Comment {
   id: number;
-  user_username: string;
+  author_username: string;
+  author_avatar?: string | null;
   content: string;
   created_at: string;
 }
@@ -23,6 +24,7 @@ interface Post {
   comments_count: number;
   image?: string | null;
   author_username: string;
+  author_avatar?: string | null;
   created_at: string;
   has_liked?: boolean;
 }
@@ -191,8 +193,12 @@ export default function PostDetail() {
           
           <div className="flex items-center space-x-4 mb-12 pb-12 border-b border-primary/10">
             <Link href={`/profile/${post.author_username}`}>
-              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-primary to-cta flex items-center justify-center text-xl font-bold text-white shadow-md hover:scale-105 transition-transform">
-                {(post.author_username || '?').charAt(0).toUpperCase()}
+              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-primary to-cta flex items-center justify-center text-xl font-bold text-white shadow-md hover:scale-105 transition-transform overflow-hidden">
+                {post.author_avatar ? (
+                  <img src={post.author_avatar.startsWith('http') ? post.author_avatar : `http://127.0.0.1:8000${post.author_avatar}`} alt={post.author_username} className="w-full h-full object-cover" />
+                ) : (
+                  (post.author_username || '?').charAt(0).toUpperCase()
+                )}
               </div>
             </Link>
             <div>
@@ -271,15 +277,19 @@ export default function PostDetail() {
               ) : (
                 comments.map((comment) => (
                   <div key={comment.id} className="glass-panel p-6 rounded-3xl flex space-x-5 transition-transform hover:-translate-y-1">
-                    <Link href={`/profile/${comment.user_username}`}>
-                      <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 border border-white flex items-center justify-center text-lg font-bold text-cta shadow-sm">
-                        {(comment.user_username || '?').charAt(0).toUpperCase()}
+                    <Link href={`/profile/${comment.author_username}`}>
+                      <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 border border-white flex items-center justify-center text-lg font-bold text-cta shadow-sm overflow-hidden">
+                        {comment.author_avatar ? (
+                          <img src={comment.author_avatar.startsWith('http') ? comment.author_avatar : `http://127.0.0.1:8000${comment.author_avatar}`} alt={comment.author_username} className="w-full h-full object-cover" />
+                        ) : (
+                          (comment.author_username || '?').charAt(0).toUpperCase()
+                        )}
                       </div>
                     </Link>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-2">
-                        <Link href={`/profile/${comment.user_username}`} className="font-bold text-text hover:text-primary transition-colors">
-                          @{comment.user_username || 'Unknown'}
+                        <Link href={`/profile/${comment.author_username}`} className="font-bold text-text hover:text-primary transition-colors">
+                          @{comment.author_username || 'Unknown'}
                         </Link>
                         <span className="text-xs font-medium text-text/40">
                           {new Date(comment.created_at).toLocaleDateString()}

@@ -36,3 +36,23 @@ class ChangePasswordView(APIView):
         user.set_password(new_password)
         user.save()
         return Response({'message': 'Password updated successfully.'})
+
+class ResetPasswordView(APIView):
+    permission_classes = []
+
+    def post(self, request):
+        username = request.data.get('username')
+        email = request.data.get('email')
+        new_password = request.data.get('new_password')
+        
+        if not username or not email or not new_password:
+            return Response({'error': 'Username, email, and new password are required.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            user = User.objects.get(username=username, email=email)
+        except User.DoesNotExist:
+            return Response({'error': 'No account found with this username and email.'}, status=status.HTTP_404_NOT_FOUND)
+            
+        user.set_password(new_password)
+        user.save()
+        return Response({'message': 'Password reset successfully.'})

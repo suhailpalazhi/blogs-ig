@@ -11,6 +11,7 @@ interface PostCardProps {
     comments_count: number;
     image?: string | null;
     author_username: string;
+    author_avatar?: string | null;
     created_at: string;
   };
 }
@@ -60,8 +61,12 @@ export default function PostCard({ post }: PostCardProps) {
 
           <div className="flex items-center justify-between pt-5 border-t border-primary/10">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-cta flex items-center justify-center text-xs font-bold text-white shadow-sm">
-                {(post.author_username || '?').charAt(0).toUpperCase()}
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-cta flex items-center justify-center text-xs font-bold text-white shadow-sm overflow-hidden">
+                {post.author_avatar ? (
+                  <img src={post.author_avatar.startsWith('http') ? post.author_avatar : `http://127.0.0.1:8000${post.author_avatar}`} alt={post.author_username} className="w-full h-full object-cover" />
+                ) : (
+                  (post.author_username || '?').charAt(0).toUpperCase()
+                )}
               </div>
               <span className="text-sm font-medium text-text/80">
                 @{post.author_username || 'Unknown'}
