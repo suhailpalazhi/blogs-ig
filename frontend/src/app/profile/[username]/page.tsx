@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import api from '@/lib/api';
 import PostCard from '@/components/PostCard';
 import ImageCropper from '@/components/ImageCropper';
+import imageCompression from 'browser-image-compression';
 import { useAuth } from '@/context/AuthContext';
 import { User as UserIcon, MapPin, Link as LinkIcon, CalendarDays, Camera } from 'lucide-react';
 
@@ -59,8 +60,21 @@ export default function ProfilePage() {
     setCropImageSrc(null);
     setIsUploadingAvatar(true);
     
+    let finalBlob = croppedBlob;
+    try {
+      const croppedFile = new File([croppedBlob], originalFileName || 'avatar.jpg', { type: 'image/jpeg' });
+      const options = {
+        maxSizeMB: 0.5,
+        maxWidthOrHeight: 800,
+        useWebWorker: true,
+      };
+      finalBlob = await imageCompression(croppedFile, options);
+    } catch (error) {
+      console.error("Error compressing avatar:", error);
+    }
+    
     const formData = new FormData();
-    formData.append('avatar', croppedBlob, originalFileName || 'avatar.jpg');
+    formData.append('avatar', finalBlob, originalFileName || 'avatar.jpg');
 
     try {
       const res = await api.patch('/users/me/', formData, {
