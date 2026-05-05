@@ -38,3 +38,8 @@ staticfiles/
 # Local tooling and agent state
 .agents/
 .claude/
+
+# Internal Project Documentation
+*.md
+!README.md
+docs/

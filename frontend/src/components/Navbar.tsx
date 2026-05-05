@@ -45,7 +45,7 @@ export default function Navbar() {
                 </button>
                 <Link href={`/profile/${user.username}`} className="w-10 h-10 rounded-full flex items-center justify-center text-primary font-bold overflow-hidden border-2 border-white shadow-sm hover:scale-105 transition-transform bg-white/50">
                   {user.avatar ? (
-                    <img src={`http://127.0.0.1:8000${user.avatar}`} alt="Profile" className="w-full h-full object-cover" />
+                    <img src={user.avatar.startsWith('http') ? user.avatar : `http://127.0.0.1:8000${user.avatar}`} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
                     <User className="w-5 h-5" />
                   )}
