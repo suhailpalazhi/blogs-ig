@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import api from '@/lib/api';
 import PostCard from '@/components/PostCard';
+import ImageCropper from '@/components/ImageCropper';
 import { useAuth } from '@/context/AuthContext';
 import { User as UserIcon, MapPin, Link as LinkIcon, CalendarDays, Camera } from 'lucide-react';
 
@@ -38,14 +39,28 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
+  const [originalFileName, setOriginalFileName] = useState<string>('');
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !e.target.files[0]) return;
     const file = e.target.files[0];
+    setOriginalFileName(file.name);
+    
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCropImageSrc(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    setCropImageSrc(null);
     setIsUploadingAvatar(true);
     
     const formData = new FormData();
-    formData.append('avatar', file);
+    formData.append('avatar', croppedBlob, originalFileName || 'avatar.jpg');
 
     try {
       const res = await api.patch('/users/me/', formData, {
@@ -109,6 +124,15 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      {cropImageSrc && (
+        <ImageCropper
+          imageSrc={cropImageSrc}
+          onCropComplete={handleCropComplete}
+          onCancel={() => setCropImageSrc(null)}
+          aspect={1}
+          circularCrop={true}
+        />
+      )}
       {/* Profile Header */}
       <div className="glass-panel rounded-[3rem] p-10 md:p-16 mb-16 relative overflow-hidden">
         {/* Soft decorative blur */}

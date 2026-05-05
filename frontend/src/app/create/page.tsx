@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
+import ImageCropper from '@/components/ImageCropper';
 import { ImagePlus, Sparkles, X } from 'lucide-react';
 import Link from 'next/link';
 
@@ -18,6 +19,8 @@ export default function CreatePost() {
   });
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
+  const [originalFileName, setOriginalFileName] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -45,11 +48,21 @@ export default function CreatePost() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setImage(file);
+      setOriginalFileName(file.name);
       const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result as string);
+      reader.onloadend = () => {
+        setCropImageSrc(reader.result as string);
+      };
       reader.readAsDataURL(file);
+      e.target.value = '';
     }
+  };
+
+  const handleCropComplete = (croppedBlob: Blob) => {
+    const croppedFile = new File([croppedBlob], originalFileName || 'image.jpg', { type: 'image/jpeg' });
+    setImage(croppedFile);
+    setImagePreview(URL.createObjectURL(croppedBlob));
+    setCropImageSrc(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -81,6 +94,14 @@ export default function CreatePost() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-16">
+      {cropImageSrc && (
+        <ImageCropper
+          imageSrc={cropImageSrc}
+          onCropComplete={handleCropComplete}
+          onCancel={() => setCropImageSrc(null)}
+          aspect={16 / 9}
+        />
+      )}
       <div className="glass-panel rounded-[3rem] p-10 md:p-16 shadow-[0_20px_60px_rgba(236,72,153,0.08)] relative overflow-hidden">
         {/* Soft background glow */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[80px] -z-10 mix-blend-multiply"></div>
