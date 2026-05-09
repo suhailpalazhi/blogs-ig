@@ -24,7 +24,7 @@ export default function Login() {
       const response = await authApi.post('/token/', { username, password });
       login(response.data.access, response.data.refresh);
       router.push('/');
-    } catch (err) {
+    } catch {
       setError('Invalid username or password. Please try again.');
     } finally {
       setIsLoading(false);
@@ -95,7 +95,7 @@ export default function Login() {
         </form>
 
         <p className="mt-10 text-center text-text/60 relative z-10">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link href="/register" className="font-bold text-primary hover:text-cta transition-colors">
             Create an account
           </Link>

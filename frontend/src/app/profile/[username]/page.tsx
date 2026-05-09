@@ -7,7 +7,7 @@ import PostCard from '@/components/PostCard';
 import ImageCropper from '@/components/ImageCropper';
 import imageCompression from 'browser-image-compression';
 import { useAuth } from '@/context/AuthContext';
-import { User as UserIcon, MapPin, Link as LinkIcon, CalendarDays, Camera } from 'lucide-react';
+import { User as UserIcon, Camera } from 'lucide-react';
 
 interface UserProfile {
   id: number;
@@ -105,7 +105,7 @@ export default function ProfilePage() {
         setProfile(profileRes.data);
         const postsData = Array.isArray(postsRes.data) ? postsRes.data : postsRes.data.results || [];
         setPosts(postsData);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed to fetch profile', err);
         setError('User not found.');
       } finally {
@@ -188,7 +188,7 @@ export default function ProfilePage() {
             <p className="text-2xl text-primary font-medium mb-6">@{profile.username}</p>
             
             <div className="text-text/80 max-w-3xl text-lg md:text-xl leading-relaxed whitespace-pre-wrap font-light">
-              {profile.bio || "This user hasn't added a bio yet. They prefer their art to speak for itself."}
+              {profile.bio || "This user hasn&apos;t added a bio yet. They prefer their art to speak for itself."}
             </div>
             
           </div>
@@ -202,7 +202,7 @@ export default function ProfilePage() {
 
       {posts.length === 0 ? (
         <div className="text-center py-24 glass-panel rounded-3xl">
-          <p className="text-xl text-text/50 font-light italic">This creative hasn't published any works yet.</p>
+          <p className="text-xl text-text/50 font-light italic">This creative hasn&apos;t published any works yet.</p>
         </div>
       ) : (
         <div className="columns-1 sm:columns-2 lg:columns-3 gap-8 space-y-8">

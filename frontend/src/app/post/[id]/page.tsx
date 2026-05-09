@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
-import { Heart, MessageCircle, Send, ArrowLeft, Trash2 } from 'lucide-react';
+import { Heart, MessageCircle, Send, ArrowLeft, Trash2, Pencil } from 'lucide-react';
 import Link from 'next/link';
 
 interface Comment {
@@ -150,18 +150,28 @@ export default function PostDetail() {
         </Link>
         
         {user?.username === post.author_username && (
-          <button 
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className="flex items-center space-x-2 text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-full font-medium transition-colors disabled:opacity-50 border border-red-100"
-          >
-            {isDeleting ? (
-              <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
-            ) : (
-              <Trash2 className="w-4 h-4" />
-            )}
-            <span>Delete Post</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <Link
+              href={`/post/${id}/edit`}
+              className="flex items-center space-x-2 text-text/70 hover:text-primary bg-white/70 hover:bg-white px-4 py-2 rounded-full font-medium transition-colors border border-white shadow-sm"
+            >
+              <Pencil className="w-4 h-4" />
+              <span>Edit Post</span>
+            </Link>
+
+            <button 
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="flex items-center space-x-2 text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-full font-medium transition-colors disabled:opacity-50 border border-red-100"
+            >
+              {isDeleting ? (
+                <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                <Trash2 className="w-4 h-4" />
+              )}
+              <span>Delete Post</span>
+            </button>
+          </div>
         )}
       </div>
 

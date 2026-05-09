@@ -53,9 +53,10 @@ export default function Register() {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       router.push('/login');
-    } catch (err: any) {
-      const errorMsg = err.response?.data
-        ? Object.values(err.response.data).flat().join(' ')
+    } catch (err: unknown) {
+      const maybeAxiosErr = err as { response?: { data?: Record<string, unknown> } };
+      const errorMsg = maybeAxiosErr.response?.data
+        ? Object.values(maybeAxiosErr.response.data).flat().join(' ')
         : 'Registration failed. Please try again.';
       setError(errorMsg);
     } finally {

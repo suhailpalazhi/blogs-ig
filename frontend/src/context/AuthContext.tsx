@@ -1,7 +1,7 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import api, { authApi } from '@/lib/api';
+import React, { createContext, useCallback, useContext, useEffect, useState, ReactNode } from 'react';
+import api from '@/lib/api';
 
 interface User {
   id: number;
@@ -27,7 +27,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUser = async () => {
+  const logout = useCallback(() => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    setUser(null);
+  }, []);
+
+  const fetchUser = useCallback(async () => {
     try {
       const response = await api.get('/users/me/');
       setUser(response.data);
@@ -37,27 +43,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [logout]);
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
     if (token) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchUser();
     } else {
       setLoading(false);
     }
-  }, []);
+  }, [fetchUser]);
 
   const login = (access: string, refresh: string) => {
     localStorage.setItem('access_token', access);
     localStorage.setItem('refresh_token', refresh);
     fetchUser();
-  };
-
-  const logout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    setUser(null);
   };
 
   return (

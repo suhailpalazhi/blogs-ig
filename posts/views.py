@@ -2,6 +2,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Count
 from .models import Post
@@ -16,11 +17,22 @@ class PostViewSet(viewsets.ModelViewSet):
     ).order_by('-created_at')
     serializer_class = PostSerializer
     permission_classes = [IsAuthorOrReadOnly]
+    parser_classes = (JSONParser, FormParser, MultiPartParser)
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['author__username']
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+
+        clear_image = self.request.data.get('clear_image', None)
+        if clear_image in (True, 'true', 'True', '1', 1):
+            if instance.image:
+                instance.image.delete(save=False)
+            instance.image = None
+            instance.save(update_fields=['image'])
 
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticatedOrReadOnly])
     def toggle_like(self, request, pk=None):

@@ -64,9 +64,10 @@ export default function SettingsPage() {
       await api.patch('/users/me/', generalData);
       setMessage({ text: 'Profile updated successfully!', type: 'success' });
       fetchUser(); // Refresh global user context
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const maybeAxiosErr = err as { response?: { data?: Record<string, unknown> } };
       setMessage({ 
-        text: err.response?.data ? Object.values(err.response.data).flat().join(' ') : 'Failed to update profile.', 
+        text: maybeAxiosErr.response?.data ? Object.values(maybeAxiosErr.response.data).flat().join(' ') : 'Failed to update profile.', 
         type: 'error' 
       });
     } finally {
@@ -88,7 +89,7 @@ export default function SettingsPage() {
       await api.post('/users/change-password/', { new_password: passwordData.new_password });
       setMessage({ text: 'Password changed successfully! You may need to log in again.', type: 'success' });
       setPasswordData({ new_password: '', confirm_password: '' });
-    } catch (err: any) {
+    } catch {
       setMessage({ text: 'Failed to change password.', type: 'error' });
     } finally {
       setIsLoading(false);
@@ -102,7 +103,8 @@ export default function SettingsPage() {
         await api.delete('/users/me/');
         logout();
         router.push('/');
-      } catch (err) {
+      } catch (err: unknown) {
+        console.error('Failed to delete account.', err);
         setMessage({ text: 'Failed to delete account.', type: 'error' });
         setIsLoading(false);
       }

@@ -31,9 +31,10 @@ export default function ForgotPassword() {
       setTimeout(() => {
         router.push('/login');
       }, 3000);
-    } catch (err: any) {
-      if (err.response?.data?.error) {
-        setError(err.response.data.error);
+    } catch (err: unknown) {
+      const maybeAxiosErr = err as { response?: { data?: { error?: string } } };
+      if (maybeAxiosErr.response?.data?.error) {
+        setError(maybeAxiosErr.response.data.error);
       } else {
         setError('An error occurred. Please check your details and try again.');
       }
